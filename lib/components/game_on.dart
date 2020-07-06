@@ -25,7 +25,7 @@ class GameOn extends StatelessWidget {
             height: size.height * 0.6,
             onComplete: onComplete,
             color: countdownTimerColor,
-            fillColor: countdownTimerFillColor,
+            fillColor: countdownTimerFillColor, // TODO change the color when end of round is near
             strokeWidth: 36.0,
             textStyle: TextStyle(
               color: Colors.transparent,

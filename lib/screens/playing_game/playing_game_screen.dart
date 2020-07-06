@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
+import 'dart:async';
 
 import '../../components/background_image.dart';
 import './components/playing_team_info.dart';
@@ -20,6 +21,7 @@ int wrongAnswers = 0;
 int correctAnswers = 0;
 int currentScore = 0;
 Map<String, String> routeArguments = {};
+const int END_ROUND_ALERT_OFFSET_SEC = 5;
 
 enum ChosenButton {
   Correct,
@@ -35,8 +37,8 @@ class PlayingGame extends StatefulWidget {
 
 class _PlayingGameState extends State<PlayingGame> {
   final AudioCache player = AudioCache();
-  String pointsToWin;
-  String lengthOfRound;
+  int pointsToWin;
+  int lengthOfRoundSeconds;
   List<String> routeTeams;
 
   @override
@@ -46,8 +48,8 @@ class _PlayingGameState extends State<PlayingGame> {
     final routeArguments =
         ModalRoute.of(context).settings.arguments as Map<String, String>;
 
-    pointsToWin = routeArguments['pointsToWin'];
-    lengthOfRound = routeArguments['lengthOfRound'];
+    pointsToWin = int.parse(routeArguments['pointsToWin']);
+    lengthOfRoundSeconds = int.parse(routeArguments['lengthOfRound']);
     routeTeams = [
       routeArguments['team1'],
       routeArguments['team2'],
@@ -65,6 +67,13 @@ class _PlayingGameState extends State<PlayingGame> {
     currentlyPlayingTeam = teams[currentlyPlayingIndex];
   }
 
+  void setCountdownTimerAlert() {
+    Timer(Duration(seconds: lengthOfRoundSeconds - END_ROUND_ALERT_OFFSET_SEC),
+        () {
+      player.play('countdown.ogg');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -76,6 +85,8 @@ class _PlayingGameState extends State<PlayingGame> {
       gamePlaying = true;
       currentWord = getRandomWord;
       setState(() {});
+
+      setCountdownTimerAlert();
     }
 
     void answerChosen(ChosenButton chosenButton) {
@@ -96,7 +107,7 @@ class _PlayingGameState extends State<PlayingGame> {
       gamePlaying = false;
       teams[currentlyPlayingIndex].points += correctAnswers - wrongAnswers;
 
-      if (teams[currentlyPlayingIndex].points >= int.parse(pointsToWin)) {
+      if (teams[currentlyPlayingIndex].points >= pointsToWin) {
         routeArguments = {
           'winningTeam': teams[currentlyPlayingIndex].name,
           'points': teams[currentlyPlayingIndex].points.toString(),

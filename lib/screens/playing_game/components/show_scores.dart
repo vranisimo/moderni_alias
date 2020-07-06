@@ -23,6 +23,7 @@ void showScores(BuildContext context) {
               child: ListView.builder(
                 itemCount: teams.length,
                 itemBuilder: (context, index) => HighscoreValue(
+                  // TODO #3- sort values here
                   teamName: teams[index].name,
                   points: teams[index].points,
                 ),
